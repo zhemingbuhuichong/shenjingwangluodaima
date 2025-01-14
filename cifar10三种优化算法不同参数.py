@@ -11,7 +11,8 @@ import os
 # 超参数
 epochs = 50
 batch_size = 128
-learning_rate = 0.1  # 固定学习率
+learning_rate_sgd = 0.1  # SGD 和 SAM 的学习率
+learning_rate_adam = 0.001  # Adam 的学习率
 weight_decays = [5e-4, 1e-4, 5e-5, 1e-5]  # 四种权重衰减
 rho = 0.05  # SAM的扰动范围
 train_ratio = 1  # 训练集比例（10%）
@@ -24,12 +25,12 @@ transform = transforms.Compose([
     transforms.RandomHorizontalFlip(),
     transforms.RandomCrop(32, padding=4),
     transforms.ToTensor(),
-    transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761))  # CIFAR-100 的均值和标准差
+    transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616))  # CIFAR-10 的均值和标准差
 ])
 
-# 加载CIFAR-100数据集
-train_dataset = datasets.CIFAR100(root='./data', train=True, download=True, transform=transform)
-test_dataset = datasets.CIFAR100(root='./data', train=False, download=True, transform=transform)
+# 加载CIFAR-10数据集
+train_dataset = datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
+test_dataset = datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
 
 # 按比例划分训练集
 train_size = int(train_ratio * len(train_dataset))
@@ -72,7 +73,7 @@ class BasicBlock(nn.Module):
 
 # 定义ResNet18
 class ResNet18(nn.Module):
-    def __init__(self, block, layers, num_classes=100):  # CIFAR-100 有 100 个类别
+    def __init__(self, block, layers, num_classes=10):  # CIFAR-10 有 10 个类别
         super(ResNet18, self).__init__()
         self.in_channels = 64
 
@@ -120,7 +121,7 @@ class ResNet18(nn.Module):
 
 # 初始化模型
 def init_model():
-    model = ResNet18(BasicBlock, [2, 2, 2, 2], num_classes=100)
+    model = ResNet18(BasicBlock, [2, 2, 2, 2], num_classes=10)
     model = model.to(device)
     return model
 
@@ -260,9 +261,9 @@ def save_results(config_name, train_losses, train_accuracies, test_losses, test_
 # 主函数
 def main():
     optimizers = {
-        'SGD': lambda model, weight_decay: optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=weight_decay),
-        'Adam': lambda model, weight_decay: optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay),
-        'SAM': lambda model, weight_decay: SAM(model.parameters(), optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=weight_decay), rho=rho)
+        'SGD': lambda model, weight_decay: optim.SGD(model.parameters(), lr=learning_rate_sgd, momentum=0.9, weight_decay=weight_decay),
+        'Adam': lambda model, weight_decay: optim.Adam(model.parameters(), lr=learning_rate_adam, weight_decay=weight_decay),
+        'SAM': lambda model, weight_decay: SAM(model.parameters(), optim.SGD(model.parameters(), lr=learning_rate_sgd, momentum=0.9, weight_decay=weight_decay), rho=rho)
     }
 
     for opt_name, opt_fn in optimizers.items():

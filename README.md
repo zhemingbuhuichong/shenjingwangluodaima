@@ -12,3 +12,9 @@ python SAM不同参数设置.py 可得到cifar100数据集使用SAM设置不同�
 
 
 python 不同的优化方法.py 可得到cifar100数据集使用设使用变种SAM的结果，结果保存在output3文件夹下，文件夹构成与之前相同。
+
+
+以下是在kaggle平台（使用gpu P100）的训练截图
+![image](https://github.com/user-attachments/assets/4cdb0120-ad84-4c65-be50-ece61371854f)
+
+![image](https://github.com/user-attachments/assets/c4e1fad5-81d9-466c-8094-df5dc5818f3f)

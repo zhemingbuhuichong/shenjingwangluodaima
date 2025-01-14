@@ -223,7 +223,7 @@ def test(epoch, model):
 
 # 保存结果
 def save_results(config_name, train_losses, train_accuracies, test_losses, test_accuracies, train_time, final_train_acc, final_test_acc):
-    output_dir = os.path.join('output1', config_name)
+    output_dir = os.path.join('output2', config_name)
     os.makedirs(output_dir, exist_ok=True)
 
     # 保存图像
